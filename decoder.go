@@ -57,6 +57,7 @@ func ValidateNew(token string) (out Attestation, err error) {
 		return emptyAttestation, err
 	}
 
+	// Fetch the Certificates in Header to check they are indeed X.509 Certificates ?
 	opts := x509.VerifyOptions{}
 	certs, err := signedAttestation.Signatures[0].Header.Certificates(opts)
 	if err != nil {
@@ -65,6 +66,10 @@ func ValidateNew(token string) (out Attestation, err error) {
 	attestationPayload, err := signedAttestation.Verify(certs[0][0].PublicKey)
 	if err != nil {
 		log.Fatalf("Error on verifying attestation %s", err)
+		return emptyAttestation, err
+	}
+	// Verify Hostname in the Certificate to expected cerfificate host name
+	if err = certs[0][0].VerifyHostname("attest.android.com"); err != nil {
 		return emptyAttestation, err
 	}
 	attestation := &Attestation{}

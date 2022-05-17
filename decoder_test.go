@@ -30,6 +30,6 @@ func TestValidateNew(t *testing.T) {
 	assert.Equal(true, attestation.CTSProfileMatch)
 	assert.Equal(false, attestation.BasicIntegrity)
 
-	_, err = safetynet.Validate([]byte(invalidSafetynetJws))
+	_, err = safetynet.ValidateNew(invalidSafetynetJws)
 	assert.NotNil(err)
 }
