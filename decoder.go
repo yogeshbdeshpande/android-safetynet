@@ -13,48 +13,15 @@ import (
 // for mocking
 var TimeFunction = time.Now
 
-/*
-func Validate(token []byte) (out Attestation, err error) {
-	jwt, err := jwt.ParseSigned(string(token))
-	if err != nil {
-		return
-	}
+// Method to Validate the Attestation Results received in a SafetyNet Attestation Response.
 
-	if len(jwt.Headers) != 1 {
-		err = ErrorSafetyNetDecode
-		return
-	}
-	key := jwt.Headers[0]
-
-	certs, err := key.Certificates(x509.VerifyOptions{
-		DNSName:                   "attest.android.com",
-		MaxConstraintComparisions: 5,
-		CurrentTime:               TimeFunction(),
-	})
-	if err != nil {
-		return
-	}
-
-	err = jwt.Claims(certs[0][0].PublicKey, &out)
-	if err != nil {
-		return
-	}
-
-	if out.Error != "" {
-		err = ErrorSafetyNetError
-		return
-	}
-
-	return
-}
-*/
-
-/* New code starts here */
 func ValidateNew(token string) (out Attestation, err error) {
 	emptyAttestation := Attestation{}
 	signedAttestation, err := jose.ParseSigned(token)
 	if err != nil {
 		return emptyAttestation, err
+	} else {
+		fmt.Printf("Valid JWS Token Detected")
 	}
 
 	// Fetch the Certificates in Header to check they are indeed X.509 Certificates ?
@@ -62,16 +29,25 @@ func ValidateNew(token string) (out Attestation, err error) {
 	certs, err := signedAttestation.Signatures[0].Header.Certificates(opts)
 	if err != nil {
 		return emptyAttestation, err
+	} else {
+		fmt.Printf("\nValid X.509 Certificate Chain detected\n")
 	}
+
 	attestationPayload, err := signedAttestation.Verify(certs[0][0].PublicKey)
 	if err != nil {
 		log.Fatalf("Error on verifying attestation %s", err)
 		return emptyAttestation, err
+	} else {
+		fmt.Printf("\nSignature on the Token Verified\n")
 	}
+
 	// Verify Hostname in the Certificate to expected cerfificate host name
 	if err = certs[0][0].VerifyHostname("attest.android.com"); err != nil {
 		return emptyAttestation, err
+	} else {
+		fmt.Printf("\nHost Name matched to attest.android.com \n")
 	}
+
 	attestation := &Attestation{}
 	json.Unmarshal(attestationPayload, &attestation)
 	fmt.Printf("%+v", attestation)

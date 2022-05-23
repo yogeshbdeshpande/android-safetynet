@@ -1,5 +1,6 @@
 module github.com/yogeshbdeshpande/android-safetynet
 
+
 go 1.18
 
 require (

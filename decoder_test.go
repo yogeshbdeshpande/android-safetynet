@@ -1,4 +1,4 @@
-package safetynet_test
+package safetynet
 
 import (
 	"testing"
